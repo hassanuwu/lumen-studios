@@ -461,6 +461,56 @@ html.anim .slide:not(.seen) .kin span{opacity:0;transform:translateY(16px)}
 .faq summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .faq details p{margin:-6px 0 20px;color:var(--muted);max-width:52ch}
 .hero .mini .art{position:absolute;inset:0;width:100%;height:100%;opacity:.5}@media (max-width:720px){.hero .mini .art{opacity:.25}}
+/* Phone pass: everything below only applies to phones and small tablets */
+.swipe-dots{display:none}
+.mcta{display:none}
+@media (max-width:900px){
+  .phones{gap:16px;scrollbar-width:none}.phones::-webkit-scrollbar{display:none}
+  .phone{--w:min(290px,74vw)}
+  .plans{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;max-width:none;margin-inline:-20px;padding:8px 20px 14px;scrollbar-width:none}
+  .plans::-webkit-scrollbar{display:none}
+  .plan{flex:0 0 min(330px,82vw);scroll-snap-align:center}
+  .plan:hover{transform:none}
+  .swipe-dots{display:flex;justify-content:center;gap:8px;margin-top:4px}
+  .swipe-dots i{width:7px;height:7px;border-radius:999px;background:color-mix(in srgb,var(--fg) 25%,transparent);transition:width .3s,background .3s}
+  .swipe-dots i.on{width:22px;background:var(--accent)}
+}
+@media (max-width:720px){
+  .hero{margin-bottom:56px}
+  .svc{padding-block:12px 48px;gap:40px}
+  .chap{padding-block:16px 0}
+  #work.slide,.about.slide{padding-block:32px 40px}
+  .about{padding-block:40px}
+  .work-title{margin-bottom:28px}
+  .pricing{padding-block:28px 16px}
+  .pr-head{margin-bottom:24px}
+  .faq{margin-top:32px}
+  .dm{gap:28px}
+  .poster.slide{padding-block:40px 48px}
+  .poster{gap:22px}
+  /* timeline: only the active view takes space, and clip names wrap instead of cutting off */
+  .tl-panel>[hidden]{display:none!important}
+  .clips{height:68px}
+  .clip{height:52px;padding:6px 7px;font-size:11px;line-height:1.15}
+  .clip.on{height:66px}
+  .clip span{white-space:normal;overflow:visible}
+  .clip::after{display:none}
+  /* contact cards: same width, stacked */
+  .links{flex-direction:column;align-items:stretch;width:100%}
+  .link{justify-content:space-between}
+  .link b{font-size:16px;overflow-wrap:anywhere}
+  /* shorter footer: the menu already lives at the top */
+  .foot{padding-block:44px 24px;gap:32px}
+  .ft-top{gap:28px}
+  .ft-top nav.ft-col{display:none}
+  .ft-bottom{gap:6px}
+  /* sticky call to action */
+  .mcta{display:flex;position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;justify-content:center;align-items:center;gap:10px;padding:15px 20px;border-radius:999px;background:var(--accent);color:#15130f;font-weight:800;font-size:16px;text-decoration:none;box-shadow:0 14px 30px -10px rgba(0,0,0,.6);transform:translateY(160%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+  .mcta.on{transform:none}
+  .mcta svg{flex:none}
+  body{padding-bottom:84px}
+}
+@media (max-width:720px) and (prefers-reduced-motion:reduce){.mcta{transition:none}}
 </style>
 
 <header class="topbar"><div class="in"><a class="logo" href="#" aria-label="Lumen Studio, back to top"><svg class="mark" width="24" height="38" viewBox="0 0 40 64" aria-hidden="true"><rect x="1.5" y="1.5" width="37" height="61" rx="9" fill="none" stroke="currentColor" stroke-width="3"/><rect x="14" y="6" width="12" height="4" rx="2" fill="currentColor"/><path d="M13 20v26h15" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lw">LUMEN<small>STUDIO</small></span></a>
@@ -1108,6 +1158,38 @@ document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',(
 document.addEventListener('pointermove',e=>{const c=e.target.closest&&e.target.closest('.lit');if(!c)return;const r=c.getBoundingClientRect();
   c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px')},{passive:true});
 document.querySelectorAll('.link').forEach(l=>l.classList.add('lit'));
+</script>
+<script>
+// Phone pass: swipe dots for the phones and pricing rows, start pricing on "Most popular", sticky WhatsApp button
+(()=>{
+  const small=matchMedia('(max-width:900px)');
+  const dots=row=>{const items=[...row.children];if(items.length<2)return;
+    const d=document.createElement('div');d.className='swipe-dots';d.setAttribute('aria-hidden','true');
+    items.forEach(()=>d.appendChild(document.createElement('i')));row.after(d);
+    const mark=()=>{const c=row.scrollLeft+row.clientWidth/2;let best=0,bd=1e9;
+      items.forEach((it,k)=>{const m=it.offsetLeft+it.offsetWidth/2,dd=Math.abs(m-c);if(dd<bd){bd=dd;best=k}});
+      [...d.children].forEach((x,k)=>x.classList.toggle('on',k===best))};
+    row.addEventListener('scroll',mark,{passive:true});addEventListener('resize',mark);mark();return mark};
+  const phones=document.querySelector('.phones'),plans=document.querySelector('.plans');
+  phones&&dots(phones);
+  const mp=plans&&dots(plans);
+  const centre=(row,el)=>{if(!small.matches||!row||!el)return;row.scrollLeft=el.offsetLeft-(row.clientWidth-el.offsetWidth)/2;mp&&mp()};
+  const start=()=>{centre(phones,phones&&phones.querySelector('.feat'));centre(plans,plans&&plans.querySelector('.plan.hot'))};
+  (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(start,100));
+
+  const cta=document.createElement('a');cta.className='mcta';
+  cta.href='https://wa.me/923290216300?text='+encodeURIComponent("Hi Lumen Studio! I'd like an ad for my brand.");
+  cta.target='_blank';cta.rel='noopener';
+  cta.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3 1 2.5c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.8.6.4-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg><span>Start your ad on WhatsApp</span>';
+  document.body.appendChild(cta);
+  // show after the first screen, hide while the contact section or footer is on screen
+  const hero=document.querySelector('.hero'),ends=[...document.querySelectorAll('#contact,.poster,.foot')];
+  let pastHero=false;const seen=new Set();
+  const upd=()=>cta.classList.toggle('on',pastHero&&!seen.size);
+  new IntersectionObserver(es=>es.forEach(e=>{pastHero=!e.isIntersecting;upd()})).observe(hero);
+  const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?seen.add(e.target):seen.delete(e.target));upd()},{threshold:.15});
+  ends.forEach(e=>io.observe(e));
+})();
 </script>
 
 </body>
