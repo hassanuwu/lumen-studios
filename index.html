@@ -158,10 +158,7 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 :root{--bar:76px;--poster:"Anton",Impact,sans-serif}
 .topbar{position:relative;z-index:10}
 .slide{min-height:0;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box}
-/* on laptops and desktops the site opens at the 75% "sweet spot" scale; the outline layer cancels it so its lines keep matching screen pixels */
-:root{--z:1}
-@media (min-width:1024px){:root{--z:.75}html{zoom:.75}.frames{zoom:calc(1/.75)}}
-.hero.slide{min-height:calc(100svh / var(--z) - var(--bar) - 48px);margin-block:24px}
+.hero.slide{min-height:calc(100svh - var(--bar) - 48px);margin-block:24px}
 .svc.slide{padding-block:48px 64px;gap:56px}
 #work.slide,.about.slide{padding-block:48px 64px}
 .chap{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding-block:28px 0}
@@ -385,7 +382,7 @@ html.anim .slide:not(.seen) .kin span{opacity:0;transform:translateY(16px)}
 
 
 /* Travelling frame: the logo's phone outline follows the scroll and wraps each section */
-.frames.top{z-index:11}.frames{position:absolute;top:0;left:0;width:1px;height:1px;z-index:8;pointer-events:none;overflow:visible}
+.frames.top{z-index:11}.frames{position:absolute;top:0;left:0;width:100%;height:1px;z-index:8;pointer-events:none;overflow:visible}
 .frames path{fill:none;stroke-linecap:round;opacity:0;transition:opacity .5s}.frames.on path{opacity:.92}
 .frames rect{fill:url(#glass)}
 .frames rect,.frames path{stroke:#fff;stroke-width:2.5;opacity:0;transition:opacity .5s}
